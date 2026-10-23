@@ -1,0 +1,1 @@
+{"name":"blue-hour-photo","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node scripts/serve.mjs","build":"node scripts/build.mjs","typecheck":"tsc -p tsconfig.json"},"devDependencies":{"typescript":"^5.9.3"}}
