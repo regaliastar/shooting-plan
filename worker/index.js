@@ -3,10 +3,11 @@ import bakedCatalog from 'site:catalog';
 
 /** @typedef {{type:string,body:string}} ContentFile */
 /** @typedef {{formatVersion:1,sourceCommit:string,builtAt:string,files:Record<string,ContentFile>}} Catalog */
-/** @typedef {{catalog:Catalog,checkedAt:number,source:string,degraded:boolean}} Snapshot */
+/** @typedef {{catalog:Catalog,checkedAt:number,source:string,degraded:boolean,bundleCommit?:string}} Snapshot */
 /** @typedef {{waitUntil(promise:Promise<unknown>):void}} Context */
 
-const CONTENT_URL = 'https://raw.githubusercontent.com/regaliastar/shooting-plan/site-content/catalog.json';
+const REPOSITORY = 'https://github.com/regaliastar/shooting-plan.git';
+const CONTENT_BASE = 'https://raw.githubusercontent.com/regaliastar/shooting-plan';
 const REFRESH_MS = 60_000;
 /** @type {Snapshot} */
 let snapshot = {catalog:bakedCatalog,checkedAt:0,source:'bundled',degraded:true};
@@ -37,25 +38,48 @@ async function content(request, ctx) {
         const catalog = await cached.json();
         const checkedAt = Number(cached.headers.get('X-Checked-At'));
         if (validCatalog(catalog) && Number.isFinite(checkedAt) && checkedAt>previous.checkedAt && checkedAt<=Date.now()) {
-          previous={catalog,checkedAt,source:'cache',degraded:false};
+          previous={catalog,checkedAt,source:'cache',degraded:false,bundleCommit:cached.headers.get('X-Bundle-Commit')||undefined};
           if (Date.now()-checkedAt < REFRESH_MS) { snapshot=previous; return snapshot; }
         }
       }
     } catch { /* Shared cache is optional; GitHub remains the content source. */ }
     try {
-      const upstream = await fetch(`${CONTENT_URL}?v=${Math.floor(Date.now()/REFRESH_MS)}`,{
-        headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(8_000)
+      // Discover the current branch through Git's standard smart-HTTP protocol.
+      // Raw URLs containing a moving branch can stay stale at GitHub's CDN;
+      // immutable commit URLs cannot return an older version of the same file.
+      const advertisement=await fetch(`${REPOSITORY}/info/refs?service=git-upload-pack`,{
+        cache:'no-store',headers:{'Git-Protocol':'version=1','Accept':'application/x-git-upload-pack-advertisement'},signal:AbortSignal.timeout(8_000)
       });
-      if (!upstream.ok) throw Error(`Content fetch returned ${upstream.status}`);
-      const text = await upstream.text();
-      if (text.length>12*1024*1024) throw Error('Content package is too large');
-      const catalog = JSON.parse(text);
-      if (!validCatalog(catalog)) throw Error('Invalid content package');
-      // Decode before accepting the snapshot: invalid file data cannot replace
-      // the last known good release, including assets not visited immediately.
-      for (const file of Object.values(catalog.files)) atob(file.body);
-      snapshot={catalog,checkedAt:Date.now(),source:'github',degraded:false};
-      if (cache) ctx.waitUntil(cache.put(key,new Response(text,{headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=86400','X-Checked-At':String(snapshot.checkedAt)}})).catch(()=>{}));
+      if (!advertisement.ok) throw Error('Git reference discovery failed');
+      const bytes=new Uint8Array(await advertisement.arrayBuffer());
+      if (bytes.length>1024*1024) throw Error('Git advertisement is too large');
+      const decoder=new TextDecoder();
+      let bundleCommit,service=false;
+      for (let offset=0;offset<bytes.length;) {
+        const prefix=decoder.decode(bytes.subarray(offset,offset+4));
+        if(!/^[0-9a-f]{4}$/.test(prefix))throw Error('Invalid Git packet');
+        const length=parseInt(prefix,16);offset+=4;
+        if(length===0)continue;
+        if(length<4||offset+length-4>bytes.length)throw Error('Truncated Git packet');
+        const record=decoder.decode(bytes.subarray(offset,offset+length-4));offset+=length-4;
+        if(!service){if(record.trim()!=='# service=git-upload-pack')throw Error('Invalid Git service');service=true;continue;}
+        const match=record.split('\0')[0].trim().match(/^([a-f0-9]{40}) refs\/heads\/site-content$/);
+        if(match)bundleCommit=match[1];
+      }
+      if(!bundleCommit)throw Error('Published content branch is missing');
+      let catalog=previous.catalog;
+      if(bundleCommit!==previous.bundleCommit) {
+        const upstream=await fetch(`${CONTENT_BASE}/${bundleCommit}/catalog.json`,{signal:AbortSignal.timeout(8_000)});
+        if(!upstream.ok)throw Error('Content fetch failed');
+        const text=await upstream.text();
+        if(text.length>12*1024*1024)throw Error('Content package is too large');
+        const value=JSON.parse(text);
+        if(!validCatalog(value))throw Error('Invalid content package');
+        for(const file of Object.values(value.files))atob(file.body);
+        catalog=value;
+      }
+      snapshot={catalog,bundleCommit,checkedAt:Date.now(),source:'github',degraded:false};
+      if(cache)ctx.waitUntil(cache.put(key,new Response(JSON.stringify(catalog),{headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=86400','X-Checked-At':String(snapshot.checkedAt),'X-Bundle-Commit':bundleCommit}})).catch(()=>{}));
     } catch {
       // Keep a validated prior release; throttle failures to once per minute.
       snapshot={...previous,checkedAt:Date.now(),degraded:true};

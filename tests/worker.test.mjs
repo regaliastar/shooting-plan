@@ -14,18 +14,27 @@ async function harness(t) {
   const originalNow=Date.now;
   const originalCaches=Object.getOwnPropertyDescriptor(globalThis,'caches');
   let now=Date.UTC(2026,9,23,8);
-  let calls=0;
+  let calls=0,discoveryCalls=0,head=1;
   let response=()=>Response.json(baked);
-  globalThis.fetch=async()=>{calls++;return response();};
+  globalThis.fetch=async url=>{
+    if(String(url).includes('/info/refs?service=git-upload-pack')) {
+      discoveryCalls++;
+      const packet=text=>(Buffer.byteLength(text)+4).toString(16).padStart(4,'0')+text;
+      return new Response(packet('# service=git-upload-pack\n')+'0000'+packet('version 1\n')+packet('a'.repeat(40)+' refs/heads/中文分支\n')+packet(String(head).padStart(40,'0')+' refs/heads/site-content\n')+'0000');
+    }
+    assert.match(String(url),new RegExp('/'+String(head).padStart(40,'0')+'/catalog\\.json$'));
+    calls++;return response();
+  };
   Date.now=()=>now;
   Object.defineProperty(globalThis,'caches',{value:undefined,writable:true,configurable:true});
   t.after(()=>{globalThis.fetch=originalFetch;Date.now=originalNow;if(originalCaches)Object.defineProperty(globalThis,'caches',originalCaches);else delete globalThis.caches;});
   const {default:worker}=await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}#${sequence++}`);
   return {
     get:async(path,method='GET')=>worker.fetch(new Request(request(path),{method}),{},context),
-    remote:callback=>{response=callback;},
+    remote:callback=>{response=callback;head++;},
     advance:ms=>{now+=ms;},
     calls:()=>calls,
+    discoveryCalls:()=>discoveryCalls,
     now:()=>now,
     catalog:()=>({...structuredClone(baked),sourceCommit:'1'.repeat(40)})
   };
@@ -93,4 +102,11 @@ test('shares validated snapshots across isolates through the edge cache',async t
 
 test('rejects mutations without contacting GitHub',async t=>{
   const h=await harness(t);assert.equal((await h.get('/','POST')).status,405);assert.equal(h.calls(),0);
+});
+
+ test('checks live refs without downloading an unchanged content package',async t=>{
+  const h=await harness(t),c=h.catalog();h.remote(()=>Response.json(c));
+  await h.get('/');assert.equal(h.calls(),1);assert.equal(h.discoveryCalls(),1);
+  h.advance(60_001);await h.get('/');
+  assert.equal(h.calls(),1);assert.equal(h.discoveryCalls(),2);
 });
