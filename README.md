@@ -1,6 +1,6 @@
 # BLUE HOUR · 摄影企划展示站
 
-面向客人的个人摄影展示网站：拍摄企划集、每份方案的独立页面、摄影理念与拍摄流程。由 GitHub 内容文件驱动，GPT 站点自动读取已发布的内容包，不设联系方式、约拍入口、管理后台、账号系统或数据库。收藏与勾选仅保存在访客本机浏览器。
+面向客人的个人摄影展示网站：可搜索的计划卡片、每份方案的独立页面和效果预览。由 GitHub 内容文件驱动，GPT 站点自动读取已发布的内容包，不设联系方式、约拍入口、管理后台、账号系统或数据库。收藏仅保存在访客本机浏览器。
 
 GitHub 内容仓库：<https://github.com/regaliastar/shooting-plan>
 
@@ -13,9 +13,9 @@ GPT 站点：<https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site>
 - `/plans/ryo-industrial/`：山田凉 · 东郊记忆，日期待定，约 3 小时。设备 α7C II + 50mm F1.4 GM + iT32，吉他包替代贝斯包，以自然光及机顶补光拍摄。
 - 河岸与排练室旧方案暂设 `published: false` 保留为草稿，补齐可执行内容后再发布。
 
-方案含四组前期准备、A/B/C 选景条件、可按日落时间换算的时间表、六组核心照片、每组构图草图及俯视灯位图、动作口令、参数、用光、调整方法与验收标准，以及应变与收工清单。日落输入与勾选保存在本地浏览器。
+详情页直接展示六张 AI 效果预览，每张仅保留画面、动作、光感短句。构图与灯位图默认折叠，支持点击效果图查看大图。已去掉真实照片参考、前期准备、相机参数、应变与收工模块；下载方案也仅包含相同的精简内容。
 
-封面为 AI 示意；实拍参考与方案示意图区分，实拍参考注明作者及来源。可再分发的 Wikimedia 图片遵守原 CC BY-SA 授权，来源见 `assets/references/CREDITS.txt`。编辑部原图仅在线引用，无法加载时保留原作入口。
+所有效果图使用内置 Imagegen 生成，非实拍。图片文件在 `assets/previews/`，生成提示词见 `assets/previews/PROMPTS.txt`。不加载外部照片。
 
 ## 在 GitHub 维护内容
 
@@ -48,18 +48,18 @@ GitHub 暂时不可用时，优先保留节点内存或边缘缓存中的上一�
 
 GPT 站点运行一个轻量 Worker 读取内容包；首次启用本机制需要更新一次 GPT 部署。之后只有修改 `worker/index.js` 的同步机制或托管配置时才需再次发布 GPT 运行时代码。仅修改 `content/`、`assets/`、页面模板并提交 `main` 即可自动同步。GitHub 仓库的可见性不会改变 GPT 站点的访问权限。
 
-### 可执行方案字段
+### 效果展示字段
 
-复制 `content/plans/ryo-industrial.json`，按以下内容维护（旧草稿需补齐这些字段才能发布）：
+复制 `content/plans/ryo-industrial.json` 并修改：
 
-- `title`、`subtitle`、`summary`、`character`、`city`、`location`、`mapQuery`、`image`、`imageAlt`、`tags`：卡片与页面信息。
-- `execution`：集合说明、设备与用光说明、`prepGroups` 准备分组、`locations` 选景条件、`flashGuide` 用光步骤、`contingencies` 应变、`acceptance` 收工验收。
-- `schedule`：每行 `[时间, 标题, 说明]`。时间写成 `S−150 → S−130`（使用减号 `−`）；`S` 为日落。前台填写日落后自动换算。
-- `coreShots`：每组包含 `id`、`title`、`priority`、`duration`、`point`、`frame`、`distance`、`composition`、`action`、`camera`、`lighting`、`adjust`、`success`、`diagram`、`references`。`diagram.kind` 支持 `shade`、`steps`、`walk`、`backlight`、`night`，`diagram.flash` 指定是否机顶补光。
-- `photoReferences`：实拍参考图片、来源、作者、授权、参考重点；`coreShots.references` 引用其 ID。
-- `references`：器材、角色与场地资料。
+- `slug`、`number`、`published`：独立网址、排序与是否发布。
+- `title`、`subtitle`、`summary`、`character`、`city`、`location`、`duration`、`props`、`tags`：卡片与标题信息；文案保持简短。
+- `image`、`imageAlt`：首页封面；`execution.dateLabel`：日期说明。
+- `coreShots`：每张含 `id`、`title`、`frame`、`preview` 和 `diagram`。
+- `preview.image`：效果图路径；`preview.effect`、`preview.pose`、`preview.light`：画面、动作、光感各一句。
+- `diagram`：折叠展示的构图与灯位数据，沿用现有格式。
 
-构建会拒绝缺少执行内容或引用不存在参考图的公开方案，避免发布半成品。下载清单由同一内容生成。
+公开方案必须包含效果图及三句短说明。准备、曝光参数、实拍参考等旧字段不再需要。下载文本由同一内容生成。
 
 ## 本地运行
 
@@ -85,7 +85,7 @@ GPT Sites 根域名部署时不要设置 `BASE_PATH`。
 - `content/plans/*.json`：拍摄方案数据源，一个文件对应一个独立页面。
 - `scripts/build.mjs`：静态生成器；验证唯一 slug、核心字段与图片存在。
 - `assets/style.css`：响应式样式；系统字体降级保证外部字体不可用时仍可阅读。
-- `assets/app.js`：筛选、搜索、收藏、图片查看、复制链接和本地勾选。
+- `assets/app.js`：筛选、搜索、收藏、图片查看与复制链接。
 - `dist/briefs/*.txt`：自动生成的完整拍摄清单，可供客人下载。
 - `.github/workflows/build.yml`：GitHub 自动校验、构建与内容发布。
 - `scripts/build-worker.mjs`：复用静态构建，生成完整内容包与可部署 Worker。
