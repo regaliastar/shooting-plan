@@ -1,6 +1,10 @@
 # BLUE HOUR · 摄影企划展示站
 
-面向客人的个人摄影展示网站：拍摄企划集、每份方案的独立页面、摄影理念、拍摄流程与约拍沟通清单。纯静态内容驱动，无管理后台、账号系统、数据库或真实表单提交。收藏与勾选仅在访客本机浏览器保存。
+面向客人的个人摄影展示网站：拍摄企划集、每份方案的独立页面、摄影理念与拍摄流程。纯静态内容驱动，不设联系方式、约拍入口、管理后台、账号系统或数据库。收藏与勾选仅保存在访客本机浏览器。
+
+GitHub 内容仓库：<https://github.com/regaliastar/shooting-plan>
+
+GPT 站点：<https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site>
 
 ## 本版内容
 
@@ -12,21 +16,26 @@
 
 图片由内置 Imagegen 工具生成，仅为 AI 构图与色调参考，非摄影师实拍客片。河岸图为成都氛围示意，不能当成望平街实地点位照片。替换真实照片时须确认肖像公开展示授权，并同步修改内容和图片说明。
 
-## GitHub 维护内容
+## 在 GitHub 维护内容
 
-本版已提供 GitHub 可用的源码与工作流，尚未关联用户 GitHub 仓库。GPT Sites 的源码仓库由 Sites 提供，不是用户 GitHub 仓库；两个部署源不会自动同步。
+1. 编辑 [`content/plans/`](https://github.com/regaliastar/shooting-plan/tree/main/content/plans) 下的 JSON 文件并提交。每个 JSON 是一份完整企划，构建器自动生成首页卡片及 `/plans/<slug>/index.html`。
+2. 新增企划：复制现有 JSON，修改唯一 `slug`、排序 `number` 和全部内容，上传新图到 `assets/`，设置 `image` 为 `/assets/文件名.webp`。删除 JSON 后该企划会从新构建中移除。
+3. [`content/site.json`](https://github.com/regaliastar/shooting-plan/blob/main/content/site.json) 维护品牌、简介、设备与图片声明。本站按纯展示设计，不包含联系信息字段。
+4. 图片与排版分别在 `assets/`、`assets/style.css` 维护；浏览器交互位于 `assets/app.js`。
 
-1. 上传本目录内容到自己的 GitHub 仓库（包括隐藏的 `.github/`，不上传 `node_modules/`、`dist/`、`.git/`）。如果仅用 GitHub Pages，可省略 `.openai/hosting.json`。
-2. 日常在 GitHub 网页直接编辑 `content/plans/<slug>.json`，提交即可。每个 JSON 是一份完整企划，构建器自动生成首页卡片及 `/plans/<slug>/index.html`。
-3. 新增企划：复制现有 JSON，修改唯一 `slug`、排序 `number` 和全部内容，上传新图到 `assets/`，设置 `image` 为 `/assets/文件名.webp`。删除 JSON 后该企划会从新构建中移除。
-4. `content/site.json` 维护品牌、简介、联系方式。`name` 为站点名称；`contact.label`、`contact.value` 填展示信息；`contact.url` 可选 HTTPS 联系页面或 `mailto:` 地址。留空时显示沟通清单，不伪造可用联系方式。
-5. 修改后构建并重新发布。GitHub Pages 可自动部署；GPT Sites 的现有发布不会因修改 GitHub 自动更新，需要从 GitHub 拉取最新内容后在 Sites 重新发布。
+### GitHub 自动构建
 
-### GitHub Pages 自动部署
+推送 `main` 或发起 Pull Request 后，仓库的 `Build photography site` 工作流会执行安装、typecheck、内容校验与静态构建。成功后可在 Actions 下载 `photography-site` 静态文件产物。
 
-仓库 Settings → Pages → Source 选择 **GitHub Actions**，默认分支使用 `main`，随后运行仓库内 `Build and publish photography site` 工作流。工作流执行安装、typecheck、内容校验与静态构建，再发布 `dist/`。支持 `用户名.github.io/仓库名/` 子路径，也支持根域名。
+工作流只构建，不开启 GitHub Pages，也不向其他托管平台自动发布。这样保持用户指定的 GPT Sites 托管方式，无需在 GitHub 保存发布凭证。
 
-如果想以 GitHub 为唯一内容源、同时保留 GPT Sites 域名，需要接入具体 GitHub 仓库并选择后续发布方式。本版没有放置长期访问令牌或虚构自动同步服务。
+### 更新 GPT 站点
+
+**GitHub 提交不会自动更新已经发布的 GPT 站点。** GitHub 是用户维护内容的仓库；GPT Sites 使用独立的发布源。后续修改后，需要将 GitHub 最新内容同步到这份站点源码、重新构建并通过 Sites 发布，保留 `.openai/hosting.json` 的原有 `project_id`。
+
+在本聊天中提供最新提交或要求“按 GitHub 最新内容更新站点”即可继续执行同步与发布。不要把用户 GitHub 凭证或 Sites 短期写入凭证提交进仓库。
+
+当前发布访问级别以 Sites 设置为准；GitHub 仓库的可见性不会改变 GPT 站点的访问权限。
 
 ## 本地运行
 
@@ -38,26 +47,26 @@ npm run dev
 
 预览 `http://127.0.0.1:4173`。内容变更后重新运行 `npm run build` 即可刷新页面。最终检查使用 `npm run typecheck`；本项目不设置 lint。源码不依赖浏览器运行时框架。
 
-项目网站部署到子目录时：
+如果部署到子目录，可设置：
 
 ```bash
-BASE_PATH=/your-repository npm run build
+BASE_PATH=/shooting-plan npm run build
 ```
 
 GPT Sites 根域名部署时不要设置 `BASE_PATH`。
 
 ## 文件与约定
 
-- `content/site.json`：品牌与联系配置。
-- `content/plans/*.json`：唯一拍摄方案数据源。
+- `content/site.json`：品牌与展示配置。
+- `content/plans/*.json`：拍摄方案数据源，一个文件对应一个独立页面。
 - `scripts/build.mjs`：静态生成器；验证唯一 slug、核心字段与图片存在。
 - `assets/style.css`：响应式样式；系统字体降级保证外部字体不可用时仍可阅读。
-- `assets/app.js`：筛选、搜索、收藏、弹窗、复制和本地勾选。
+- `assets/app.js`：筛选、搜索、收藏、图片查看、复制链接和本地勾选。
 - `dist/briefs/*.txt`：自动生成的完整拍摄清单，可供客人下载。
-- `.github/workflows/pages.yml`：GitHub Pages 自动构建与部署。
-- `.openai/hosting.json`：本次 GPT Sites 身份，后续更新应保留，不复制为新站点身份。
+- `.github/workflows/build.yml`：GitHub 自动校验与构建。
+- `.openai/hosting.json`：GPT Sites 身份，后续更新应保留，不复制为新站点身份。
 
-所有方案都是真正的静态页面，复制地址后可直接访问和刷新，无前端路由兜底需求。默认静态服务请开启目录 `index.html`。页面全部相对根路径资源可由 `BASE_PATH` 自动处理。
+所有方案都是真正的静态页面，复制地址后可直接访问和刷新，无前端路由兜底需求。默认静态服务请开启目录 `index.html`。页面根路径资源可由 `BASE_PATH` 自动处理。
 
 ## 核实资料
 

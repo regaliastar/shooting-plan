@@ -22,11 +22,7 @@ document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListen
 search?.addEventListener('input',filter);
 document.querySelectorAll('[data-save]').forEach(button=>button.addEventListener('click',()=>{const slug=button.getAttribute('data-save');if(!slug)return;if(saved.has(slug)){saved.delete(slug);notify('已取消收藏');}else{saved.add(slug);notify('已收藏，随时回来看看');}try{localStorage.setItem('blue-hour-saved',JSON.stringify([...saved]));}catch{notify('当前浏览器未允许保存，收藏仅在本次页面有效');}syncSaved();filter();}));
 syncSaved();
-const dialog=document.querySelector('#contact-dialog');
-const brief=document.querySelector('#brief');
-document.querySelectorAll('[data-contact]').forEach(button=>button.addEventListener('click',()=>{if(!(dialog instanceof HTMLDialogElement))return;const plan=button.getAttribute('data-plan');if(plan&&brief instanceof HTMLTextAreaElement)brief.value=brief.value.replace(/喜欢的企划：[^\n]*/,`喜欢的企划：${plan}`);dialog.showModal();}));
 document.querySelectorAll('dialog').forEach(el=>{if(!(el instanceof HTMLDialogElement))return;el.querySelector('[data-close]')?.addEventListener('click',()=>el.close());el.addEventListener('click',event=>{if(event.target===el){const r=el.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)el.close();}});});
-document.querySelector('#copy-brief')?.addEventListener('click',async()=>{if(!(brief instanceof HTMLTextAreaElement))return;try{await navigator.clipboard.writeText(brief.value);notify('沟通清单已复制');}catch{brief.focus();brief.select();notify('请复制已选中的沟通清单');}});
 document.querySelector('#share-plan')?.addEventListener('click',async()=>{try{const url=new URL(window.location.href);url.hash='';await navigator.clipboard.writeText(url.toString());notify('企划链接已复制');}catch{notify('请从浏览器地址栏复制企划链接');}});
 const imageDialog=document.querySelector('#image-dialog');
 const largeImage=document.querySelector('#large-image');
