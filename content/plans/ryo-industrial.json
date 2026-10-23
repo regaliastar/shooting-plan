@@ -4,8 +4,8 @@
   "published": true,
   "schemaVersion": 3,
   "title": "山田凉 · 东郊记忆",
-  "subtitle": "工业街景 · 琴包日常 · 日落蓝调",
-  "summary": "冷灰工业背景、蓝色短发、黑色琴包。六组画面，从自然光拍到蓝调。",
+  "subtitle": "排练前的散步",
+  "summary": "背着琴包，从午后的旧墙边，走到第一盏灯亮。",
   "character": "山田凉",
   "english": "RYO YAMADA",
   "city": "成都",
@@ -16,11 +16,11 @@
   "gear": "Sony α7C II + FE 50mm F1.4 GM + Godox iT32",
   "category": "街景",
   "tags": [
-    "工业街景",
-    "琴包日常",
+    "日系胶片",
+    "旧厂房散步",
     "日落蓝调"
   ],
-  "image": "/assets/previews/ryo-01.jpg",
+  "image": "/assets/previews/dream-01.jpg",
   "imageAlt": "山田凉背着黑色吉他包的半身 AI 效果预览",
   "imageType": "AI 封面示意",
   "updated": "2026-10-23",
@@ -30,7 +30,7 @@
   "coreShots": [
     {
       "id": "01",
-      "title": "半身肖像",
+      "title": "半身 · 风吹过蓝发",
       "frame": "竖幅 4:5 · 半身",
       "diagram": {
         "kind": "shade",
@@ -41,15 +41,16 @@
         "cameraHeight": "机位约胸口至眼睛高度"
       },
       "preview": {
-        "image": "/assets/previews/ryo-01.jpg",
-        "effect": "冷灰墙面，蓝发和眼神成为画面重点。",
-        "pose": "侧身扶包带，脸轻转向镜头。",
-        "light": "柔和侧光，脸亮、背景稍暗。"
+        "image": "/assets/previews/dream-01.jpg",
+        "effect": "浅暖旧墙与蓝发，像午后偶然的一眼。",
+        "pose": "侧身扶肩带，目光轻轻转回来。",
+        "light": "侧后暖光勾发丝，脸部保持柔亮。",
+        "composition": "竖幅半身，人物放右侧，左边留旧墙；琴包露出但不贴头顶。"
       }
     },
     {
       "id": "02",
-      "title": "琴包全身",
+      "title": "全身 · 还没到排练时间",
       "frame": "竖幅 4:5 · 全身",
       "diagram": {
         "kind": "shade",
@@ -60,15 +61,16 @@
         "cameraHeight": "机位腰至胸口，保持竖直"
       },
       "preview": {
-        "image": "/assets/previews/ryo-02.jpg",
-        "effect": "完整拍到服装与琴包，像排练前停下的一刻。",
-        "pose": "前脚半步，肩膀放松，一手扶肩带。",
-        "light": "均匀自然光，保留衣服和包的质感。"
+        "image": "/assets/previews/dream-02.jpg",
+        "effect": "斑驳廊道里，白衬衫被光轻轻照亮。",
+        "pose": "一手扶包带，前脚松松迈半步。",
+        "light": "侧后光加少量补光，前景留一点虚影。",
+        "composition": "竖幅全身，包头与鞋底完整留边；廊柱向画面深处延伸。"
       }
     },
     {
       "id": "03",
-      "title": "台阶坐姿",
+      "title": "坐姿 · 等下一首歌",
       "frame": "竖幅 4:5 · 坐姿全身",
       "diagram": {
         "kind": "steps",
@@ -79,15 +81,16 @@
         "cameraHeight": "机位接近坐姿眼睛高度"
       },
       "preview": {
-        "image": "/assets/previews/ryo-03.jpg",
-        "effect": "台阶线条留白，人物和琴包组成安静的日常。",
-        "pose": "琴包靠腿侧，坐直放松，抬眼看远处。",
-        "light": "侧前方柔光，眼睛清楚可见。"
+        "image": "/assets/previews/dream-03.jpg",
+        "effect": "台阶、琴包、透过树叶的暖光。",
+        "pose": "包靠腿侧，抬眼看远处。",
+        "light": "光落在空台阶，脸朝开阔天空。",
+        "composition": "人物偏右，台阶向左留白；琴包与身体分开，避免压住膝盖。"
       }
     },
     {
       "id": "04",
-      "title": "回头瞬间",
+      "title": "回头 · 走慢一点",
       "frame": "竖幅 4:5 · 环境人像",
       "diagram": {
         "kind": "walk",
@@ -98,15 +101,16 @@
         "cameraHeight": "先固定机位，再让人物走进构图"
       },
       "preview": {
-        "image": "/assets/previews/ryo-04.jpg",
-        "effect": "旧厂房纵深里，抓住走过后回头的动作。",
-        "pose": "背包走三步，站稳后缓缓回头。",
-        "light": "均匀散射光，发丝和眼睛保持清晰。"
+        "image": "/assets/previews/dream-04.jpg",
+        "effect": "发梢被风吹起，长廊留下一段光。",
+        "pose": "走三步停住，再缓缓回头。",
+        "light": "廊道侧后光，发丝亮起、双眼清楚。",
+        "composition": "完整保留琴包，廊道引导线从左侧进入；回头方向留空间。"
       }
     },
     {
       "id": "05",
-      "title": "日落逆光",
+      "title": "逆光 · 日落还没结束",
       "frame": "竖幅 4:5 · 半身",
       "diagram": {
         "kind": "backlight",
@@ -117,15 +121,16 @@
         "cameraHeight": "机顶 iT32 随相机，非离机灯"
       },
       "preview": {
-        "image": "/assets/previews/ryo-05.jpg",
-        "effect": "蓝发边缘染上暖光，脸部保留柔和层次。",
-        "pose": "微侧身，扶肩带，目光看镜头旁。",
-        "light": "暖色轮廓光，轻补脸部。"
+        "image": "/assets/previews/dream-05.jpg",
+        "effect": "暖色泛光、蓝发轮廓与轻轻的回望。",
+        "pose": "微侧身，手扶肩带，眼睛看镜头旁。",
+        "light": "夕阳在侧后，轻补脸，不让眩光盖住眼睛。",
+        "composition": "半身靠右，落日留在背景一侧；包头与蓝发错开。"
       }
     },
     {
       "id": "06",
-      "title": "蓝调街景",
+      "title": "蓝调 · 第一盏灯",
       "frame": "竖幅 4:5 · 环境人像",
       "diagram": {
         "kind": "night",
@@ -136,11 +141,43 @@
         "cameraHeight": "站稳单张拍，等 iT32 回电再按"
       },
       "preview": {
-        "image": "/assets/previews/ryo-06.jpg",
-        "effect": "冷蓝夜色配暖色窗灯，人物清晰、背景有灯光。",
-        "pose": "背琴包站定，视线落在街道一侧。",
-        "light": "保留环境灯光，少量机顶补光。"
+        "image": "/assets/previews/dream-06.jpg",
+        "effect": "灰蓝天空、暖色灯晕，像一段散步的结尾。",
+        "pose": "背着琴包站定，轻轻看向镜头。",
+        "light": "环境灯保留暖色，脸部只做轻补光。",
+        "composition": "人物在右三分之一，左边留店窗灯光；灯点避开眼睛与耳边。"
       }
     }
-  ]
+  ],
+  "story": {
+    "title": "排练前的散步",
+    "kicker": "午後の余白",
+    "intro": "背着琴包，等风经过，等灯亮起。",
+    "chapters": [
+      {
+        "title": "午后的光",
+        "note": "靠近旧墙，让光落在蓝发上。",
+        "shots": [
+          "01",
+          "02"
+        ]
+      },
+      {
+        "title": "等风经过",
+        "note": "坐一会儿，再慢慢回头。",
+        "shots": [
+          "03",
+          "04"
+        ]
+      },
+      {
+        "title": "落日与灯火",
+        "note": "把落日的暖，留到蓝调里。",
+        "shots": [
+          "05",
+          "06"
+        ]
+      }
+    ]
+  }
 }

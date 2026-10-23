@@ -1,6 +1,6 @@
 # BLUE HOUR · Coser 拍摄方案
 
-面向客人的拍摄方案展示网站。首页搜索计划，详情页用大图展示预期画面。内容保存在 GitHub，无管理后台。
+面向客人的拍摄方案展示网站。首页搜索计划，详情页按日系写真集的章节展示预期画面。内容保存在 GitHub，无管理后台。
 
 - [打开网站](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/)
 - [山田凉 · 东郊记忆](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/plans/ryo-industrial/)
@@ -13,11 +13,13 @@
 - 效果大图，点击可放大。
 - 每张图的画面、动作、光感，各一句短说明。
 - 默认折叠的构图与灯位示意图。
-- 日期、时长、道具，以及简版方案下载、链接复制。
+- 日期、时长、道具，以及带图片与构图信息的 PDF 下载、文字版下载、链接复制。
 
 当前公开方案为「山田凉 · 东郊记忆」：半身肖像、琴包全身、台阶坐姿、回头瞬间、日落逆光、蓝调街景。日期待定，约 3 小时，道具为吉他包。河岸、排练室旧方案保留为草稿。
 
-效果图由 Imagegen 生成，均标注为 **AI 效果示意，非实拍**。不展示他人的真实照片，不展示前期准备、相机曝光参数、应变与收工模块。收藏仅保存在当前浏览器。
+当前以「午后的光、等风经过、落日与灯火」串联六组照片，使用纸白底色、灰蓝与淡粉、错落照片排版。
+
+效果图由 Imagegen 编辑为柔光胶片氛围，均标注为 **AI 效果示意，非实拍**。不展示他人的真实照片，不展示前期准备、相机曝光参数、应变与收工模块。收藏仅保存在当前浏览器。
 
 ## 修改与新增方案
 
@@ -34,6 +36,7 @@
 | 搜索与卡片标签 | `tags`；搜索还匹配标题、副标题、地点和 `gear` |
 | 首页封面 | `image`、`imageAlt`、`imageType` |
 | 每张效果图及短说明 | `coreShots[].preview` |
+| 三个故事章节及镜头顺序 | `story.title`、`story.kicker`、`story.intro`、`story.chapters` |
 | 折叠示意图 | `coreShots[].frame`、`coreShots[].diagram` |
 | 网页标题中的站名、首页描述 | `content/site.json` 中的 `name`、`description` |
 
@@ -41,10 +44,11 @@
 
 ```json
 {
-  "image": "/assets/previews/ryo-01.jpg",
+  "image": "/assets/previews/dream-01.jpg",
   "effect": "冷灰墙面，蓝发和眼神成为画面重点。",
   "pose": "侧身扶包带，脸轻转向镜头。",
-  "light": "柔和侧光，脸亮、背景稍暗。"
+  "light": "柔和侧光，脸亮、背景稍暗。",
+  "composition": "竖幅半身，人物偏右，左侧留干净墙面。"
 }
 ```
 
@@ -58,21 +62,29 @@
 
 设置 `published: false` 会同时隐藏卡片和详情页。删除 JSON 文件也会移除该方案；不再使用的图片可一并删除。旧草稿需补齐当前的 `preview` 和 `diagram` 数据后才能发布。
 
+`story.chapters` 中每项含 `title`、`note` 和 `shots`（镜头 ID 数组）；每张镜头应出现一次。`preview.composition` 保存构图短说明，网页折叠区和 PDF 共用。
+
 ### 图片与排版
 
 - 图片放在 `assets/previews/`，JSON 中使用以 `/assets/` 开头的路径。支持 JPG、PNG、WebP 等格式；建议保持竖幅 4:5。
 - 首页封面 `image` 与每张效果图 `preview.image` 分别维护，替换时注意两处引用。
-- 当前 AI 图片的生成提示词保存在 `assets/previews/PROMPTS.txt`，替换图片后同步更新记录。
+- 当前 AI 效果图的编辑提示词保存在 `assets/previews/PROMPTS.txt`，替换图片后同步更新记录。
 - 保持短文案：客户先看效果图，再看动作与光感。
 - 页面结构、底部拍摄顺序等固定文案，以及示意图绘制逻辑在 `scripts/build.mjs`；新增不同场景时一并核对。
 - 排版在 `assets/style.css`，交互在 `assets/app.js`。
+
+## PDF 导出
+
+详情页顶部与底部均有「下载 PDF」。构建时为每份公开方案生成 `/briefs/<slug>.pdf`，每张照片一页，包含效果图、画面、动作、光感、构图文字、构图示意图和俯视机位灯位图。图片与中文字体嵌入文件，支持离线阅读。
+
+PDF 直接由方案 JSON 构建；修改图片或构图后随 GitHub 内容包一起更新。生成器在 `scripts/build-pdfs.py`，依赖见 `scripts/requirements-pdf.txt`。中文字体和授权在 `scripts/fonts/`。
 
 ## 自动同步到 GPT 站点
 
 提交到 `main` 后，[Build and sync photography site](https://github.com/regaliastar/shooting-plan/actions) 工作流自动执行：
 
 1. 安装依赖、构建页面与图片，运行测试及 typecheck。
-2. 生成完整的 `catalog.json` 内容包，发布到 `site-content` 分支。
+2. 将页面、图片和 PDF 生成完整的 `catalog.json` 内容包，发布到 `site-content` 分支。
 3. GPT 站点在访问时检查新内容，每个边缘节点的检查间隔为 60 秒。
 
 工作流成功后通常 1–3 分钟可见，已打开的页面需要刷新。网络或缓存异常时可能更久。
@@ -102,13 +114,18 @@ GitHub 暂时不可用时，优先显示上一次成功内容；边缘备份有�
 
 ## 本地开发
 
-需要 Node.js 20 或兼容版本；CI 使用 Node.js 20。
+需要 Node.js 20、Python 3.12 或兼容版本；CI 使用 Node.js 20 与 Python 3.12。
 
 先安装依赖：
 
 ```bash
 npm ci
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r scripts/requirements-pdf.txt
 ```
+
+在该虚拟环境中运行后续构建命令，或用 `PYTHON=/绝对路径/python3 npm run build` 指定已安装依赖的解释器。
 
 ### 预览未提交的本地内容
 
@@ -149,6 +166,8 @@ npm run typecheck
 | `assets/previews/` | AI 效果图与提示词 |
 | `scripts/build.mjs` | 生成首页、详情页、简版下载文本及 404 页 |
 | `assets/style.css`、`assets/app.js` | 页面样式和浏览器交互 |
+| `scripts/build-pdfs.py` | 生成含图片与构图信息的 PDF |
+| `scripts/fonts/` | 构建 PDF 使用的开源中文字体与授权 |
 | `scripts/build-worker.mjs` | 生成内容包与 Worker 部署文件 |
 | `scripts/publish-content.cjs` | 发布内容到 `site-content` |
 | `.github/workflows/build.yml` | 自动构建、检查和内容同步 |

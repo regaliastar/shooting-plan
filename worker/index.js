@@ -20,7 +20,7 @@ function validCatalog(value) {
   const c = /** @type {Catalog} */ (value);
   if (c.formatVersion !== 1 || !/^[a-f0-9]{40}$/.test(c.sourceCommit) || !Number.isFinite(Date.parse(c.builtAt)) || !c.files || typeof c.files !== 'object' || Array.isArray(c.files)) return false;
   if (!c.files['/index.html'] || !c.files['/404.html'] || !c.files['/assets/app.js'] || !c.files['/assets/style.css']) return false;
-  const types = new Set(['text/html; charset=utf-8','text/css; charset=utf-8','text/javascript; charset=utf-8','text/plain; charset=utf-8','application/json; charset=utf-8','image/webp','image/png','image/jpeg','image/gif','image/svg+xml','image/x-icon']);
+  const types = new Set(['application/pdf','text/html; charset=utf-8','text/css; charset=utf-8','text/javascript; charset=utf-8','text/plain; charset=utf-8','application/json; charset=utf-8','image/webp','image/png','image/jpeg','image/gif','image/svg+xml','image/x-icon']);
   return Object.entries(c.files).every(([p,f])=>p.startsWith('/')&&!p.includes('..')&&!p.includes('?')&&!p.includes('#')&&!!f&&types.has(f.type)&&typeof f.body==='string'&&f.body.length>0);
 }
 

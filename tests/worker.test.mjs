@@ -110,3 +110,22 @@ test('rejects mutations without contacting GitHub',async t=>{
   h.advance(60_001);await h.get('/');
   assert.equal(h.calls(),1);assert.equal(h.discoveryCalls(),2);
 });
+
+test('PDF downloads preserve binary bytes and refresh with the plan release',async t=>{
+  const h=await harness(t),c=h.catalog();
+  const bytes=Buffer.from([37,80,68,70,45,49,46,55,10,0,255,128,10,37,37,69,79,70]);
+  c.files['/briefs/new-plan.pdf']={type:'application/pdf',body:bytes.toString('base64')};
+  h.remote(()=>Response.json(c));
+  const response=await h.get('/briefs/new-plan.pdf');
+  assert.equal(response.status,200);
+  assert.equal(response.headers.get('Content-Type'),'application/pdf');
+  assert.match(response.headers.get('Content-Disposition'),/attachment; filename="new-plan.pdf"/);
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()),bytes);
+  assert.equal(await (await h.get('/briefs/new-plan.pdf','HEAD')).text(),'');
+  const next=h.catalog();next.sourceCommit='2'.repeat(40);
+  next.files['/briefs/new-plan.pdf']=file('%PDF-1.7\nupdated images and diagrams\n%%EOF','application/pdf');
+  h.remote(()=>Response.json(next));h.advance(60_001);
+  const updated=await h.get('/briefs/new-plan.pdf');
+  assert.equal(updated.headers.get('X-Content-Revision'),next.sourceCommit);
+  assert.match(await updated.text(),/updated images and diagrams/);
+});

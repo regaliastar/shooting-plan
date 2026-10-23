@@ -2,3 +2,6 @@ node_modules/
 dist/
 .DS_Store
 .sites-runtime/
+
+.venv/
+__pycache__/
