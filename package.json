@@ -4,11 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/serve.mjs",
-    "build": "npm run build:static && node scripts/build-worker.mjs && node scripts/validate-artifact.mjs",
+    "dev": "npm run build:static && python3 -m http.server 4173 --bind 127.0.0.1 --directory dist",
+    "build": "node scripts/build-pages.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "build:static": "node scripts/build.mjs",
-    "test": "node --test tests/worker.test.mjs"
+    "test": "node --test tests/pages.test.mjs",
+    "build:worker": "npm run build:static && node scripts/build-worker.mjs && node scripts/validate-artifact.mjs",
+    "test:worker": "node --test tests/worker.test.mjs",
+    "dev:worker": "node scripts/serve.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

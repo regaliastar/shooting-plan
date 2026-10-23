@@ -1,9 +1,9 @@
 # BLUE HOUR · Coser 拍摄方案
 
-面向客人的拍摄方案展示网站。首页搜索计划，详情页按日系写真集的章节展示预期画面。内容保存在 GitHub，无管理后台。
+面向客人的拍摄方案展示网站。首页搜索计划，详情页按日系写真集的章节展示预期画面。内容保存在 GitHub，由 GitHub Actions 自动构建并发布到 GitHub Pages，无管理后台。
 
-- [打开网站](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/)
-- [山田凉 · 东郊记忆](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/plans/ryo-industrial/)
+- [打开网站](https://regaliastar.github.io/shooting-plan/)
+- [山田凉 · 东郊记忆](https://regaliastar.github.io/shooting-plan/plans/ryo-industrial/)
 - [查看自动同步状态](https://github.com/regaliastar/shooting-plan/actions)
 
 ## 当前展示
@@ -79,38 +79,26 @@
 
 PDF 直接由方案 JSON 构建；修改图片或构图后随 GitHub 内容包一起更新。生成器在 `scripts/build-pdfs.py`，依赖见 `scripts/requirements-pdf.txt`。中文字体和授权在 `scripts/fonts/`。
 
-## 自动同步到 GPT 站点
+## 自动发布到 GitHub Pages
 
-提交到 `main` 后，[Build and sync photography site](https://github.com/regaliastar/shooting-plan/actions) 工作流自动执行：
+提交到 `main` 后，[Build and deploy GitHub Pages](https://github.com/regaliastar/shooting-plan/actions) 自动执行：
 
-1. 安装依赖、构建页面与图片，运行测试及 typecheck。
-2. 将页面、图片和 PDF 生成完整的 `catalog.json` 内容包，发布到 `site-content` 分支。
-3. GPT 站点在访问时检查新内容，每个边缘节点的检查间隔为 60 秒。
+1. 安装 Node.js、Python 与依赖。
+2. 构建静态页面、效果图资源和包含构图信息的 PDF。
+3. 检查页面、图片、脚本、样式、PDF 链接，运行 typecheck。
+4. 上传静态文件并部署到 GitHub Pages。
 
-工作流成功后通常 1–3 分钟可见，已打开的页面需要刷新。网络或缓存异常时可能更久。
+**修改、新增、删除方案，以及替换图片、调整文案和样式，提交后都会自动发布。** 不需要手动重新发布。Pull Request 只构建和校验，合入 `main` 后才部署。
 
-**修改、新增、删除方案，以及替换图片、调整文案和样式，无需手动重新发布 GPT 站点。** `site-content` 由工作流维护，不要手动编辑。Pull Request 只校验，合入 `main` 后才更新线上内容。
+页面、脚本、图片和 PDF 都由同一个 Pages 站点提供；访客无需登录，也不需要连接 GPT 域名或动态读取 GitHub Raw 接口。迁移后以 Pages 地址为准，原 GPT 站点不再随 `main` 自动更新。
 
-JSON 错误、图片缺失或校验失败时，该次更新不会上线；修正后重新提交即可。内容包包含所有页面与图片，当前限制为 12 MiB，图片应适当压缩。
+构建失败时不会覆盖当前已上线版本。先查看 Actions 日志，修正 JSON、图片路径或 PDF 内容后重新提交即可。部署成功后刷新网页查看更新。
 
-仓库和 `site-content` 分支须保持公开可读。同步使用 GitHub Actions 内置 `GITHUB_TOKEN`，无需配置 PAT 或 GPT Sites 发布密钥。
+项目站点默认路径为 `/shooting-plan/`。工作流通过 `actions/configure-pages` 获取实际前缀，首页、独立方案、图片放大和 PDF 链接统一适配；`.nojekyll` 关闭 Jekyll 处理。以后使用自定义域名时，构建也支持根路径。
 
-<details>
-<summary>同步机制与故障排查</summary>
+仓库 Settings → Pages 的 Source 应为 **GitHub Actions**，发布任务使用内置 `GITHUB_TOKEN` 和 OIDC，无需配置 PAT 或 GPT Sites 密钥。
 
-站点通过 Git 智能 HTTP 协议发现 `site-content` 最新提交，再从不可变提交地址读取内容包。整包校验成功后更新，保证页面与图片属于同一次构建。
-
-GitHub 暂时不可用时，优先显示上一次成功内容；边缘备份有效期为 24 小时。没有可用缓存时使用最后一次 GPT 部署附带的基础内容，网络恢复后自动更新。
-
-排查顺序：
-
-1. 查看 GitHub Actions 是否成功。
-2. 查看 [`/__sync`](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/__sync) 中的 `sourceCommit` 是否对应本次源码提交，`degraded` 是否为 `false`。
-3. 等待缓存检查后刷新页面。
-
-`/__sync` 是只读诊断接口，不提供管理功能。修改 `worker/index.js` 的同步机制或托管配置时，需要重新构建并发布 GPT Sites 运行时代码；普通内容更新走上述自动同步流程。
-
-</details>
+迁移移除了对 GPT 站点的访问依赖；GitHub Pages 在客人实际网络下能否稳定直连，仍需实测，不能据此保证中国大陆所有网络都可访问。
 
 ## 本地开发
 
@@ -127,25 +115,15 @@ python -m pip install -r scripts/requirements-pdf.txt
 
 在该虚拟环境中运行后续构建命令，或用 `PYTHON=/绝对路径/python3 npm run build` 指定已安装依赖的解释器。
 
-### 预览未提交的本地内容
+### 本地预览
 
 ```bash
-npm run build:static
-python3 -m http.server 4174 --bind 127.0.0.1 --directory dist
-```
-
-打开 `http://127.0.0.1:4174/`。每次修改后重新运行 `npm run build:static`，再刷新浏览器。此方式需要 Python 3，也可换成其他静态服务器。
-
-### 验证线上 Worker 行为
-
-```bash
-npm run build
 npm run dev
 ```
 
-打开 `http://127.0.0.1:4173/`。此预览与线上一样，优先读取 GitHub 已发布内容；远端不可用时使用本地构建快照，因此不能用它确认尚未提交的页面改动。
+打开 `http://127.0.0.1:4173/`。该命令从本地 JSON 构建页面与 PDF，再启动静态服务器，不读取远端内容包。每次修改后停止并重新运行，刷新浏览器查看。
 
-最终检查：
+### 生产构建与最终检查
 
 ```bash
 npm run build
@@ -153,9 +131,20 @@ npm test
 npm run typecheck
 ```
 
-项目不设置 lint。`npm run build` 最终生成 Worker 部署包，静态页面会打包进内容包；需要直接查看静态 `dist/` 时重新运行 `npm run build:static`。
+`dist/` 是可直接部署的完整静态站点，含首页、方案页、图片、脚本、样式、PDF 和 404 页。`npm test` 检查路径前缀、文件链接、图片与 PDF，并确认页面不依赖 GPT 运行时。
 
-另行导出到子目录时，可使用 `BASE_PATH=/shooting-plan npm run build:static`；GPT Sites 根域名部署保持 `BASE_PATH` 为空。
+项目默认使用 GitHub Pages 的 `/shooting-plan/` 路径。需要导出根路径版本或其他子目录时：
+
+```bash
+BASE_PATH= npm run build
+BASE_PATH=/another-path npm run build
+```
+
+工作流自动传入实际路径前缀，日常维护无需手动设置。项目不设置 lint。
+
+### 旧 GPT 运行时（保留兼容）
+
+`worker/` 与相关脚本仅作旧部署兼容，GitHub Pages 不使用它们，也不再发布 `site-content` 分支。需要检查旧实现时可运行 `npm run build:worker` 和 `npm run test:worker`；日常只使用上面的 Pages 构建流程。
 
 ## 项目结构
 
@@ -168,11 +157,13 @@ npm run typecheck
 | `assets/style.css`、`assets/app.js` | 页面样式和浏览器交互 |
 | `scripts/build-pdfs.py` | 生成含图片与构图信息的 PDF |
 | `scripts/fonts/` | 构建 PDF 使用的开源中文字体与授权 |
-| `scripts/build-worker.mjs` | 生成内容包与 Worker 部署文件 |
-| `scripts/publish-content.cjs` | 发布内容到 `site-content` |
-| `.github/workflows/build.yml` | 自动构建、检查和内容同步 |
-| `worker/index.js` | 内容读取、缓存、回退与路由 |
+| `scripts/build-pages.mjs` | 生成适配 Pages 路径的静态站点与 `.nojekyll` |
+| `tests/pages.test.mjs` | Pages 内部链接、静态资源与 PDF 检查 |
+| `scripts/build-worker.mjs` | 旧 GPT 部署兼容构建 |
+| `scripts/publish-content.cjs` | 旧 GPT 内容包发布脚本，现工作流不调用 |
+| `.github/workflows/build.yml` | 自动构建、检查并部署 GitHub Pages |
+| `worker/index.js` | 旧 GPT 内容读取与路由，Pages 不使用 |
 | `tests/worker.test.mjs` | 自动同步与失败恢复测试 |
-| `.openai/hosting.json` | 现有 GPT Sites 身份与托管配置，更新时保留 |
+| `.openai/hosting.json` | 保留原 GPT Sites 身份，Pages 不使用 |
 
 构建生成的 `dist/`、`.sites-runtime/` 无需手动维护或提交。
