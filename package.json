@@ -1,1 +1,16 @@
-{"name":"blue-hour-photo","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node scripts/serve.mjs","build":"node scripts/build.mjs","typecheck":"tsc -p tsconfig.json"},"devDependencies":{"typescript":"^5.9.3"}}
+{
+  "name": "blue-hour-photo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "npm run build:static && node scripts/build-worker.mjs && node scripts/validate-artifact.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "build:static": "node scripts/build.mjs",
+    "test": "node --test tests/worker.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
