@@ -8,18 +8,19 @@ GPT 站点：<https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site>
 
 ## 本版内容
 
-- `/plans/ryo-industrial/`：山田凉 · 东郊工业散步（主推，约 3 小时）
-- `/plans/ryo-riverside/`：山田凉 · 望平街蓝调（约 2.5 小时）
-- `/plans/ryo-rehearsal/`：山田凉 · 排练室独白（约 2 小时，场地待预约）
+首页是可搜索、可收藏的拍摄计划卡片列表。点击进入独立的可执行方案；没有个人介绍、营销流程、联系方式或管理后台。
 
-均包含选景路线、相对日落时间表、六组分镜、Sony α7C II + 50mm F1.4 GM 参数起点、准备清单、雨天方案和建议交付目标。12 张精修为建议目标，不构成已确认报价或交付承诺。拍摄日期未指定，不编造天气和绝对日落时刻。
+- `/plans/ryo-industrial/`：山田凉 · 东郊记忆，日期待定，约 3 小时。设备 α7C II + 50mm F1.4 GM + iT32，吉他包替代贝斯包，以自然光及机顶补光拍摄。
+- 河岸与排练室旧方案暂设 `published: false` 保留为草稿，补齐可执行内容后再发布。
 
-图片由内置 Imagegen 工具生成，仅为 AI 构图与色调参考，非摄影师实拍客片。河岸图为成都氛围示意，不能当成望平街实地点位照片。替换真实照片时须确认肖像公开展示授权，并同步修改内容和图片说明。
+方案含四组前期准备、A/B/C 选景条件、可按日落时间换算的时间表、六组核心照片、每组构图草图及俯视灯位图、动作口令、参数、用光、调整方法与验收标准，以及应变与收工清单。日落输入与勾选保存在本地浏览器。
+
+封面为 AI 示意；实拍参考与方案示意图区分，实拍参考注明作者及来源。可再分发的 Wikimedia 图片遵守原 CC BY-SA 授权，来源见 `assets/references/CREDITS.txt`。编辑部原图仅在线引用，无法加载时保留原作入口。
 
 ## 在 GitHub 维护内容
 
-1. 编辑 [`content/plans/`](https://github.com/regaliastar/shooting-plan/tree/main/content/plans) 下的 JSON 文件并提交。每个 JSON 是一份完整企划，构建器自动生成首页卡片及 `/plans/<slug>/index.html`。
-2. 新增企划：复制现有 JSON，修改唯一 `slug`、排序 `number` 和全部内容，上传新图到 `assets/`，设置 `image` 为 `/assets/文件名.webp`。删除 JSON 后该企划会从新构建中移除。
+1. 编辑 [`content/plans/`](https://github.com/regaliastar/shooting-plan/tree/main/content/plans) 下的 JSON 文件并提交。每个 JSON 是一份完整企划，构建器自动生成首页卡片及 `/plans/<slug>/index.html`。设置 `published: false` 可保存草稿而不显示。
+2. 新增企划：复制现有 JSON，修改唯一 `slug`、排序 `number`、`published: true` 和全部内容，上传新图到 `assets/`，设置 `image` 为 `/assets/文件名.webp`。删除 JSON 后该企划会从新构建中移除。
 3. [`content/site.json`](https://github.com/regaliastar/shooting-plan/blob/main/content/site.json) 维护品牌、简介、设备与图片声明。本站按纯展示设计，不包含联系信息字段。
 4. 图片与排版分别在 `assets/`、`assets/style.css` 维护；浏览器交互位于 `assets/app.js`。
 
@@ -46,6 +47,19 @@ GitHub 暂时不可用时，优先保留节点内存或边缘缓存中的上一�
 [`/__sync`](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/__sync) 提供只读诊断：当前 `sourceCommit`、构建时间、最近检查时间和是否处于回退状态。该地址不修改状态或提供管理功能，不在客人浏览页面展示技术信息。
 
 GPT 站点运行一个轻量 Worker 读取内容包；首次启用本机制需要更新一次 GPT 部署。之后只有修改 `worker/index.js` 的同步机制或托管配置时才需再次发布 GPT 运行时代码。仅修改 `content/`、`assets/`、页面模板并提交 `main` 即可自动同步。GitHub 仓库的可见性不会改变 GPT 站点的访问权限。
+
+### 可执行方案字段
+
+复制 `content/plans/ryo-industrial.json`，按以下内容维护（旧草稿需补齐这些字段才能发布）：
+
+- `title`、`subtitle`、`summary`、`character`、`city`、`location`、`mapQuery`、`image`、`imageAlt`、`tags`：卡片与页面信息。
+- `execution`：集合说明、设备与用光说明、`prepGroups` 准备分组、`locations` 选景条件、`flashGuide` 用光步骤、`contingencies` 应变、`acceptance` 收工验收。
+- `schedule`：每行 `[时间, 标题, 说明]`。时间写成 `S−150 → S−130`（使用减号 `−`）；`S` 为日落。前台填写日落后自动换算。
+- `coreShots`：每组包含 `id`、`title`、`priority`、`duration`、`point`、`frame`、`distance`、`composition`、`action`、`camera`、`lighting`、`adjust`、`success`、`diagram`、`references`。`diagram.kind` 支持 `shade`、`steps`、`walk`、`backlight`、`night`，`diagram.flash` 指定是否机顶补光。
+- `photoReferences`：实拍参考图片、来源、作者、授权、参考重点；`coreShots.references` 引用其 ID。
+- `references`：器材、角色与场地资料。
+
+构建会拒绝缺少执行内容或引用不存在参考图的公开方案，避免发布半成品。下载清单由同一内容生成。
 
 ## 本地运行
 
