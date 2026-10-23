@@ -1,107 +1,159 @@
-# BLUE HOUR · 摄影企划展示站
+# BLUE HOUR · Coser 拍摄方案
 
-面向客人的个人摄影展示网站：可搜索的计划卡片、每份方案的独立页面和效果预览。由 GitHub 内容文件驱动，GPT 站点自动读取已发布的内容包，不设联系方式、约拍入口、管理后台、账号系统或数据库。收藏仅保存在访客本机浏览器。
+面向客人的拍摄方案展示网站。首页搜索计划，详情页用大图展示预期画面。内容保存在 GitHub，无管理后台。
 
-GitHub 内容仓库：<https://github.com/regaliastar/shooting-plan>
+- [打开网站](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/)
+- [山田凉 · 东郊记忆](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/plans/ryo-industrial/)
+- [查看自动同步状态](https://github.com/regaliastar/shooting-plan/actions)
 
-GPT 站点：<https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site>
+## 当前展示
 
-## 本版内容
+首页提供计划卡片、关键词搜索与收藏。每份计划有独立网址，详情页包含：
 
-首页是可搜索、可收藏的拍摄计划卡片列表。点击进入独立的可执行方案；没有个人介绍、营销流程、联系方式或管理后台。
+- 效果大图，点击可放大。
+- 每张图的画面、动作、光感，各一句短说明。
+- 默认折叠的构图与灯位示意图。
+- 日期、时长、道具，以及简版方案下载、链接复制。
 
-- `/plans/ryo-industrial/`：山田凉 · 东郊记忆，日期待定，约 3 小时。设备 α7C II + 50mm F1.4 GM + iT32，吉他包替代贝斯包，以自然光及机顶补光拍摄。
-- 河岸与排练室旧方案暂设 `published: false` 保留为草稿，补齐可执行内容后再发布。
+当前公开方案为「山田凉 · 东郊记忆」：半身肖像、琴包全身、台阶坐姿、回头瞬间、日落逆光、蓝调街景。日期待定，约 3 小时，道具为吉他包。河岸、排练室旧方案保留为草稿。
 
-详情页直接展示六张 AI 效果预览，每张仅保留画面、动作、光感短句。构图与灯位图默认折叠，支持点击效果图查看大图。已去掉真实照片参考、前期准备、相机参数、应变与收工模块；下载方案也仅包含相同的精简内容。
+效果图由 Imagegen 生成，均标注为 **AI 效果示意，非实拍**。不展示他人的真实照片，不展示前期准备、相机曝光参数、应变与收工模块。收藏仅保存在当前浏览器。
 
-所有效果图使用内置 Imagegen 生成，非实拍。图片文件在 `assets/previews/`，生成提示词见 `assets/previews/PROMPTS.txt`。不加载外部照片。
+## 修改与新增方案
 
-## 在 GitHub 维护内容
+日常只编辑 `main` 分支。
 
-1. 编辑 [`content/plans/`](https://github.com/regaliastar/shooting-plan/tree/main/content/plans) 下的 JSON 文件并提交。每个 JSON 是一份完整企划，构建器自动生成首页卡片及 `/plans/<slug>/index.html`。设置 `published: false` 可保存草稿而不显示。
-2. 新增企划：复制现有 JSON，修改唯一 `slug`、排序 `number`、`published: true` 和全部内容，上传新图到 `assets/`，设置 `image` 为 `/assets/文件名.webp`。删除 JSON 后该企划会从新构建中移除。
-3. [`content/site.json`](https://github.com/regaliastar/shooting-plan/blob/main/content/site.json) 维护品牌、简介、设备与图片声明。本站按纯展示设计，不包含联系信息字段。
-4. 图片与排版分别在 `assets/`、`assets/style.css` 维护；浏览器交互位于 `assets/app.js`。
+### 修改现有方案
 
-### 自动同步到 GPT 站点
+编辑 [`content/plans/ryo-industrial.json`](https://github.com/regaliastar/shooting-plan/blob/main/content/plans/ryo-industrial.json)，提交后等待 GitHub Actions 成功，再刷新网站。
 
-提交到 `main` 后，`Build and sync photography site` 工作流会自动：
+| 内容 | 字段 / 文件 |
+| --- | --- |
+| 标题、副标题、卡片简介 | `title`、`subtitle`、`summary` |
+| 地点、时长、道具、日期 | `location`、`duration`、`props`、`execution.dateLabel` |
+| 搜索与卡片标签 | `tags`；搜索还匹配标题、副标题、地点和 `gear` |
+| 首页封面 | `image`、`imageAlt`、`imageType` |
+| 每张效果图及短说明 | `coreShots[].preview` |
+| 折叠示意图 | `coreShots[].frame`、`coreShots[].diagram` |
+| 网页标题中的站名、首页描述 | `content/site.json` 中的 `name`、`description` |
 
-1. 安装依赖、构建所有页面与配图、运行测试和 typecheck。
-2. 将完整内容打包成一个 `catalog.json`，写入自动维护的 `site-content` 分支。
-3. GPT 站点在下一次访问时读取该内容包，缓存每 60 秒重新检查一次；通常在工作流成功后的 1–3 分钟内可见。GitHub、网络或缓存异常时可能更久，已经打开的页面需刷新后查看。
+每张照片的 `preview` 格式如下：
 
-**日常修改、新增、删除方案、替换配图、调整文案和页面样式，都无需重新发布 GPT 站点。** 每份方案仍有 `/plans/<slug>/` 独立链接，新方案也能直接访问。只维护 `main` 的源码文件，不要手动编辑 `site-content`，该分支由工作流生成。
+```json
+{
+  "image": "/assets/previews/ryo-01.jpg",
+  "effect": "冷灰墙面，蓝发和眼神成为画面重点。",
+  "pose": "侧身扶包带，脸轻转向镜头。",
+  "light": "柔和侧光，脸亮、背景稍暗。"
+}
+```
 
-浏览 [GitHub Actions](https://github.com/regaliastar/shooting-plan/actions) 可查看同步结果。若 JSON 格式错误、图片缺失或校验失败，该次更新不会上线，网站继续显示上一次成功内容。修正文件并提交会自动重试。
+### 新增、隐藏与删除
 
-同步使用 GitHub Actions 内置的短期 `GITHUB_TOKEN`，仅发布任务拥有仓库内容写权限，无需提供 PAT 或 GPT Sites 发布密钥。Pull Request 只校验，合入 `main` 后才更新线上内容。本方案要求仓库及生成内容分支保持公开可读。
+1. 复制当前的 `ryo-industrial.json`，不要直接使用旧草稿作为模板。
+2. 修改唯一的 `slug`，例如 `new-plan`；独立网址为 `/plans/new-plan/`。
+3. 用字符串 `number` 排序，例如 `"01"`、`"02"`；设置 `published: true`。
+4. 修改标题、封面、短说明，以及 `coreShots` 中的照片和示意图数据。镜头 `id` 沿用 `"01"`、`"02"` 这样的格式。
+5. 上传所需图片并提交。
 
-### 缓存、回退与诊断
+设置 `published: false` 会同时隐藏卡片和详情页。删除 JSON 文件也会移除该方案；不再使用的图片可一并删除。旧草稿需补齐当前的 `preview` 和 `diagram` 数据后才能发布。
 
-GPT 站点通过标准 Git 智能 HTTP 协议发现最新发布提交，再用不可变提交地址读取公开内容包，避开移动分支的 CDN 陈旧缓存；整份内容校验通过后原子替换；文字、页面和图片来自同一份构建。每个边缘节点的缓存检查间隔为 60 秒，访客无需连接 GitHub 或登录 GitHub。
+### 图片与排版
 
-GitHub 暂时不可用时，优先保留节点内存或边缘缓存中的上一次成功内容（边缘备份有效期 24 小时）；均不可用时使用最后一次 GPT 部署附带的基础内容。网络恢复后自动更新。不会把明确删除的页面从基础内容中重新补回来。
+- 图片放在 `assets/previews/`，JSON 中使用以 `/assets/` 开头的路径。支持 JPG、PNG、WebP 等格式；建议保持竖幅 4:5。
+- 首页封面 `image` 与每张效果图 `preview.image` 分别维护，替换时注意两处引用。
+- 当前 AI 图片的生成提示词保存在 `assets/previews/PROMPTS.txt`，替换图片后同步更新记录。
+- 保持短文案：客户先看效果图，再看动作与光感。
+- 页面结构、底部拍摄顺序等固定文案，以及示意图绘制逻辑在 `scripts/build.mjs`；新增不同场景时一并核对。
+- 排版在 `assets/style.css`，交互在 `assets/app.js`。
 
-[`/__sync`](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/__sync) 提供只读诊断：当前 `sourceCommit`、构建时间、最近检查时间和是否处于回退状态。该地址不修改状态或提供管理功能，不在客人浏览页面展示技术信息。
+## 自动同步到 GPT 站点
 
-GPT 站点运行一个轻量 Worker 读取内容包；首次启用本机制需要更新一次 GPT 部署。之后只有修改 `worker/index.js` 的同步机制或托管配置时才需再次发布 GPT 运行时代码。仅修改 `content/`、`assets/`、页面模板并提交 `main` 即可自动同步。GitHub 仓库的可见性不会改变 GPT 站点的访问权限。
+提交到 `main` 后，[Build and sync photography site](https://github.com/regaliastar/shooting-plan/actions) 工作流自动执行：
 
-### 效果展示字段
+1. 安装依赖、构建页面与图片，运行测试及 typecheck。
+2. 生成完整的 `catalog.json` 内容包，发布到 `site-content` 分支。
+3. GPT 站点在访问时检查新内容，每个边缘节点的检查间隔为 60 秒。
 
-复制 `content/plans/ryo-industrial.json` 并修改：
+工作流成功后通常 1–3 分钟可见，已打开的页面需要刷新。网络或缓存异常时可能更久。
 
-- `slug`、`number`、`published`：独立网址、排序与是否发布。
-- `title`、`subtitle`、`summary`、`character`、`city`、`location`、`duration`、`props`、`tags`：卡片与标题信息；文案保持简短。
-- `image`、`imageAlt`：首页封面；`execution.dateLabel`：日期说明。
-- `coreShots`：每张含 `id`、`title`、`frame`、`preview` 和 `diagram`。
-- `preview.image`：效果图路径；`preview.effect`、`preview.pose`、`preview.light`：画面、动作、光感各一句。
-- `diagram`：折叠展示的构图与灯位数据，沿用现有格式。
+**修改、新增、删除方案，以及替换图片、调整文案和样式，无需手动重新发布 GPT 站点。** `site-content` 由工作流维护，不要手动编辑。Pull Request 只校验，合入 `main` 后才更新线上内容。
 
-公开方案必须包含效果图及三句短说明。准备、曝光参数、实拍参考等旧字段不再需要。下载文本由同一内容生成。
+JSON 错误、图片缺失或校验失败时，该次更新不会上线；修正后重新提交即可。内容包包含所有页面与图片，当前限制为 12 MiB，图片应适当压缩。
 
-## 本地运行
+仓库和 `site-content` 分支须保持公开可读。同步使用 GitHub Actions 内置 `GITHUB_TOKEN`，无需配置 PAT 或 GPT Sites 发布密钥。
+
+<details>
+<summary>同步机制与故障排查</summary>
+
+站点通过 Git 智能 HTTP 协议发现 `site-content` 最新提交，再从不可变提交地址读取内容包。整包校验成功后更新，保证页面与图片属于同一次构建。
+
+GitHub 暂时不可用时，优先显示上一次成功内容；边缘备份有效期为 24 小时。没有可用缓存时使用最后一次 GPT 部署附带的基础内容，网络恢复后自动更新。
+
+排查顺序：
+
+1. 查看 GitHub Actions 是否成功。
+2. 查看 [`/__sync`](https://blue-hour-ryo-chengdu.earthybow3.chatgpt.site/__sync) 中的 `sourceCommit` 是否对应本次源码提交，`degraded` 是否为 `false`。
+3. 等待缓存检查后刷新页面。
+
+`/__sync` 是只读诊断接口，不提供管理功能。修改 `worker/index.js` 的同步机制或托管配置时，需要重新构建并发布 GPT Sites 运行时代码；普通内容更新走上述自动同步流程。
+
+</details>
+
+## 本地开发
+
+需要 Node.js 20 或兼容版本；CI 使用 Node.js 20。
+
+先安装依赖：
 
 ```bash
 npm ci
+```
+
+### 预览未提交的本地内容
+
+```bash
+npm run build:static
+python3 -m http.server 4174 --bind 127.0.0.1 --directory dist
+```
+
+打开 `http://127.0.0.1:4174/`。每次修改后重新运行 `npm run build:static`，再刷新浏览器。此方式需要 Python 3，也可换成其他静态服务器。
+
+### 验证线上 Worker 行为
+
+```bash
 npm run build
 npm run dev
 ```
 
-预览 `http://127.0.0.1:4173`。内容变更后重新运行 `npm run build` 即可刷新页面。最终检查使用 `npm run typecheck`；本项目不设置 lint。源码不依赖浏览器运行时框架。预览使用与线上相同的 Worker：远端内容包可用时读取它；离线时使用本次构建快照。要单独预览未提交的本地内容，可运行 `npm run build:static` 后通过任意静态服务器查看 `dist/`。
+打开 `http://127.0.0.1:4173/`。此预览与线上一样，优先读取 GitHub 已发布内容；远端不可用时使用本地构建快照，因此不能用它确认尚未提交的页面改动。
 
-如果部署到子目录，可设置：
+最终检查：
 
 ```bash
-BASE_PATH=/shooting-plan npm run build
+npm run build
+npm test
+npm run typecheck
 ```
 
-GPT Sites 根域名部署时不要设置 `BASE_PATH`。
+项目不设置 lint。`npm run build` 最终生成 Worker 部署包，静态页面会打包进内容包；需要直接查看静态 `dist/` 时重新运行 `npm run build:static`。
 
-## 文件与约定
+另行导出到子目录时，可使用 `BASE_PATH=/shooting-plan npm run build:static`；GPT Sites 根域名部署保持 `BASE_PATH` 为空。
 
-- `content/site.json`：品牌与展示配置。
-- `content/plans/*.json`：拍摄方案数据源，一个文件对应一个独立页面。
-- `scripts/build.mjs`：静态生成器；验证唯一 slug、核心字段与图片存在。
-- `assets/style.css`：响应式样式；系统字体降级保证外部字体不可用时仍可阅读。
-- `assets/app.js`：筛选、搜索、收藏、图片查看与复制链接。
-- `dist/briefs/*.txt`：自动生成的完整拍摄清单，可供客人下载。
-- `.github/workflows/build.yml`：GitHub 自动校验、构建与内容发布。
-- `scripts/build-worker.mjs`：复用静态构建，生成完整内容包与可部署 Worker。
-- `scripts/publish-content.cjs`：通过 GitHub 内置令牌发布 `site-content/catalog.json`。
-- `worker/index.js`：读取远端内容、缓存、回退、独立页面和清单路由。
-- `tests/worker.test.mjs`：同步、增删页面、配图、缓存、失败回退与恢复测试。
-- `.openai/hosting.json`：GPT Sites 身份，后续更新应保留，不复制为新站点身份。
+## 项目结构
 
-方案正文仍由原静态生成器生成，不依赖客户端渲染。线上 Worker 根据最新内容包处理路径，复制独立链接后可直接访问和刷新。`BASE_PATH` 只用于另行导出的静态站点；GPT 根域名部署请保持为空。
+| 路径 | 用途 |
+| --- | --- |
+| `content/plans/*.json` | 一份文件对应一份计划 |
+| `content/site.json` | 站点元信息 |
+| `assets/previews/` | AI 效果图与提示词 |
+| `scripts/build.mjs` | 生成首页、详情页、简版下载文本及 404 页 |
+| `assets/style.css`、`assets/app.js` | 页面样式和浏览器交互 |
+| `scripts/build-worker.mjs` | 生成内容包与 Worker 部署文件 |
+| `scripts/publish-content.cjs` | 发布内容到 `site-content` |
+| `.github/workflows/build.yml` | 自动构建、检查和内容同步 |
+| `worker/index.js` | 内容读取、缓存、回退与路由 |
+| `tests/worker.test.mjs` | 自动同步与失败恢复测试 |
+| `.openai/hosting.json` | 现有 GPT Sites 身份与托管配置，更新时保留 |
 
-## 核实资料
-
-- [角色官方介绍](https://bocchi.rocks/omnibus/character/ryo.html)
-- [东郊记忆背景与地址](https://www.thepaper.cn/newsDetail_forward_22928401)
-- [望平街本地介绍](https://news.chengdu.cn/2024/1206/2458097.shtml?phone=yes)
-- [Sony α7C II 帮助指南](https://helpguide.sony.net/ilc/2360/v1/en/index.html)
-- [Sony 关于灯光频闪的说明](https://www.sony.ca/en/electronics/support/cameras-camcorders/articles/00122281)
-
-资料核实日期：2026-10-23。开放情况、费用与拍摄许可仍需在预约前向场地方确认。
+构建生成的 `dist/`、`.sites-runtime/` 无需手动维护或提交。
